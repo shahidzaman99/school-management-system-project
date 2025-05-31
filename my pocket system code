@@ -1,0 +1,146 @@
+package mypocketsystem;
+
+import javax.swing.*;
+import java.awt.*;
+
+class User {
+    private  String username;
+    private  String password;
+    private double balance;
+
+    public User(String username, String password, double balance) {
+        this.username = username;
+        this.password = password;
+        this.balance = balance;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public boolean checkPassword(String password) {
+        return this.password.equals(password);
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void addIncome(double amount) {
+        balance += amount;
+    }
+
+    public boolean addExpense(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+public class MYPOCKET extends JFrame {
+    private User user = null;
+
+    private  JButton loginBtn = new JButton("Login");
+    private  JButton logoutBtn = new JButton("Logout");
+    private  JButton incomeBtn = new JButton("Add Income");
+    private  JButton expenseBtn = new JButton("Add Expense");
+    private  JButton viewBalanceBtn = new JButton("View Balance");
+
+    private final JLabel statusLabel = new JLabel("Not logged in");
+
+    public MYPOCKET() {
+        setTitle("MYPOCKET - Budget Tracking System");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(6, 1, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        panel.add(loginBtn);
+        panel.add(logoutBtn);
+        panel.add(incomeBtn);
+        panel.add(expenseBtn);
+        panel.add(viewBalanceBtn);
+        panel.add(statusLabel);
+
+        logoutBtn.setEnabled(false);
+        incomeBtn.setEnabled(false);
+        expenseBtn.setEnabled(false);
+        viewBalanceBtn.setEnabled(false);
+
+        add(panel);
+
+        loginBtn.addActionListener(e -> login());
+        logoutBtn.addActionListener(e -> logout());
+        incomeBtn.addActionListener(e -> addIncome());
+        expenseBtn.addActionListener(e -> addExpense());
+        viewBalanceBtn.addActionListener(e -> viewBalance());
+
+        setVisible(true);
+    }
+
+    private void login() {
+        String username = JOptionPane.showInputDialog(this, "Enter Username:");
+        String password = JOptionPane.showInputDialog(this, "Enter Password:");
+
+        if ("zia".equals(username) && "khan".equals(password)) {
+            user = new User("zia", "khan", 0.0);
+            statusLabel.setText("Logged in as: " + user.getUsername());
+            toggleButtons(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password.");
+        }
+    }
+
+    private void logout() {
+        user = null;
+        statusLabel.setText("Not logged in");
+        toggleButtons(false);
+    }
+
+    private void addIncome() {
+        String input = JOptionPane.showInputDialog(this, "Enter income amount:");
+        try {
+            double amount = Double.parseDouble(input);
+            user.addIncome(amount);
+            JOptionPane.showMessageDialog(this, "Income added successfully.\nUpdated Balance: " + user.getBalance());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid amount.");
+        }
+    }
+
+    private void addExpense() {
+        String input = JOptionPane.showInputDialog(this, "Enter expense amount:");
+        try {
+            double amount = Double.parseDouble(input);
+            if (user.addExpense(amount)) {
+                JOptionPane.showMessageDialog(this, "Expense added successfully.\nUpdated Balance: " + user.getBalance());
+            } else {
+                JOptionPane.showMessageDialog(this, "Insufficient funds.");
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid amount.");
+        }
+    }
+
+    private void viewBalance() {
+        JOptionPane.showMessageDialog(this, "Current Balance: " + user.getBalance());
+    }
+
+    private void toggleButtons(boolean loggedIn) {
+        loginBtn.setEnabled(!loggedIn);
+        logoutBtn.setEnabled(loggedIn);
+        incomeBtn.setEnabled(loggedIn);
+        expenseBtn.setEnabled(loggedIn);
+        viewBalanceBtn.setEnabled(loggedIn);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(MYPOCKET::new);
+    }
+}
